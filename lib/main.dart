@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
+import 'services/profile_service.dart';
 import 'utils/constants.dart';
 
 void main() async {
@@ -90,7 +92,61 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const HomeScreen(),
+      home: const AuthenticationWrapper(),
     );
+  }
+}
+
+/// Wrapper to determine if user should see login or home screen
+class AuthenticationWrapper extends StatefulWidget {
+  const AuthenticationWrapper({super.key});
+
+  @override
+  State<AuthenticationWrapper> createState() => _AuthenticationWrapperState();
+}
+
+class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
+  bool _isLoading = true;
+  bool _hasActiveProfile = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkActiveProfile();
+  }
+
+  Future<void> _checkActiveProfile() async {
+    try {
+      final activeProfile = await ProfileService.getActiveProfile();
+      setState(() {
+        _hasActiveProfile = activeProfile != null;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _hasActiveProfile = false;
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Cargando...'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return _hasActiveProfile ? const HomeScreen() : const LoginScreen();
   }
 }
