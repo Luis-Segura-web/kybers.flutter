@@ -7,6 +7,7 @@ import '../services/tmdb_service.dart';
 import '../widgets/channel_card.dart';
 import '../utils/helpers.dart';
 import '../utils/constants.dart';
+import '../widgets/connection_test_widget.dart';
 import 'player_screen.dart';
 
 /// Home screen showing list of channels and categories
@@ -139,6 +140,18 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text(AppConstants.appName),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.wifi_tethering),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ConnectionTestWidget(),
+                ),
+              );
+            },
+            tooltip: 'Test de conexión',
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadData,
