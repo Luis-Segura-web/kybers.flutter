@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import '../models/channel.dart';
 import '../models/category.dart';
 import '../models/metadata.dart';
+import '../models/user_profile.dart';
 import '../services/xtream_service.dart';
 import '../services/tmdb_service.dart';
+import '../services/cache_service.dart';
+import '../services/profile_service.dart';
 import '../widgets/channel_card.dart';
 import '../utils/helpers.dart';
 import '../utils/constants.dart';
 import '../widgets/connection_test_widget.dart';
 import 'player_screen.dart';
+import 'login_screen.dart';
 
 /// Home screen showing list of channels and categories
 class HomeScreen extends StatefulWidget {
@@ -26,11 +30,12 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = false;
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+  UserProfile? _currentProfile;
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _initializeProfile();
   }
 
   @override
@@ -39,14 +44,74 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  Future<void> _initializeProfile() async {
+    try {
+      final activeProfile = await ProfileService.getActiveProfile();
+      if (activeProfile == null) {
+        // No active profile, navigate to login
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+        }
+        return;
+      }
+      
+      setState(() => _currentProfile = activeProfile);
+      _loadData();
+    } catch (e) {
+      if (mounted) {
+        AppHelpers.showError(context, 'Error al cargar perfil: $e');
+      }
+    }
+  }
+
   Future<void> _loadData() async {
+    if (_currentProfile == null) return;
+    
     setState(() => _isLoading = true);
 
     try {
+      // Try to load from cache first
+      await _loadFromCache();
+      
+      // Load from server in background
+      _loadFromServer();
+    } catch (e) {
+      if (mounted) {
+        AppHelpers.showError(context, 'Error al cargar datos: $e');
+      }
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _loadFromCache() async {
+    if (_currentProfile == null) return;
+    
+    // Load categories from cache
+    final cachedCategories = await CacheService.getCachedCategories(_currentProfile!.id);
+    if (cachedCategories != null) {
+      setState(() => _categories = cachedCategories);
+    }
+    
+    // Load channels from cache
+    final cachedChannels = await CacheService.getCachedChannels(_currentProfile!.id, _selectedCategoryId);
+    if (cachedChannels != null) {
+      setState(() => _channels = cachedChannels);
+      // Load metadata for cached channels
+      _loadMetadata(cachedChannels.take(10).toList());
+    }
+  }
+
+  Future<void> _loadFromServer() async {
+    if (_currentProfile == null) return;
+    
+    try {
       // Load categories and channels in parallel
       final results = await Future.wait([
-        XtreamService.getCategories(),
-        XtreamService.getChannels(),
+        XtreamService.getCategories(_currentProfile),
+        XtreamService.getChannels(_selectedCategoryId, _currentProfile),
       ]);
 
       final categories = results[0] as List<Category>;
@@ -57,14 +122,19 @@ class _HomeScreenState extends State<HomeScreen> {
         _channels = channels;
       });
 
+      // Cache the results
+      await CacheService.cacheCategories(_currentProfile!.id, categories);
+      await CacheService.cacheChannels(_currentProfile!.id, channels, _selectedCategoryId);
+
       // Load metadata for first few channels
       _loadMetadata(channels.take(10).toList());
     } catch (e) {
-      if (mounted) {
-        AppHelpers.showError(context, 'Error al cargar canales: $e');
+      // If we have cached data, don't show error
+      if (_channels.isEmpty) {
+        if (mounted) {
+          AppHelpers.showError(context, 'Error al cargar canales: $e');
+        }
       }
-    } finally {
-      setState(() => _isLoading = false);
     }
   }
 
@@ -89,16 +159,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadChannelsForCategory(String? categoryId) async {
+    if (_currentProfile == null) return;
+    
     setState(() {
       _isLoading = true;
       _selectedCategoryId = categoryId;
     });
 
     try {
-      final channels = await XtreamService.getChannels(categoryId);
-      setState(() {
-        _channels = channels;
-      });
+      // Try cache first
+      final cachedChannels = await CacheService.getCachedChannels(_currentProfile!.id, categoryId);
+      if (cachedChannels != null) {
+        setState(() => _channels = cachedChannels);
+        // Load metadata for cached channels
+        _loadMetadata(cachedChannels.take(10).toList());
+      }
+      
+      // Load from server
+      final channels = await XtreamService.getChannels(categoryId, _currentProfile);
+      setState(() => _channels = channels);
+      
+      // Cache the results
+      await CacheService.cacheChannels(_currentProfile!.id, channels, categoryId);
 
       // Load metadata for new channels
       _loadMetadata(channels.take(10).toList());
@@ -133,11 +215,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _logout() async {
+    try {
+      await ProfileService.clearActiveProfile();
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        AppHelpers.showError(context, 'Error al cerrar sesión: $e');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppConstants.appName),
+        title: Text(_currentProfile?.name ?? AppConstants.appName),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
@@ -155,6 +252,30 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadData,
+            tooltip: 'Refrescar',
+          ),
+          PopupMenuButton(
+            icon: const Icon(Icons.account_circle),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                child: const ListTile(
+                  leading: Icon(Icons.switch_account),
+                  title: Text('Cambiar perfil'),
+                ),
+                onTap: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  );
+                },
+              ),
+              PopupMenuItem(
+                child: const ListTile(
+                  leading: Icon(Icons.logout),
+                  title: Text('Cerrar sesión'),
+                ),
+                onTap: _logout,
+              ),
+            ],
           ),
         ],
       ),
