@@ -1,0 +1,41 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Checkout del código fuente
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Paso 2: Configurar Flutter (descargado antes del firewall)
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.1'  # Cambia a la versión que necesites
+          channel: 'stable'
+
+      # Paso 3: Verificar instalación y descargar dependencias
+      - name: Flutter Doctor
+        run: flutter doctor
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Paso 4: Realizar build (ajusta según tipo de proyecto)
+      - name: Build APK (o Web, macOS, etc.)
+        run: flutter build apk --release
+
+      # Paso 5: (Opcional) Subir artefactos del build
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
