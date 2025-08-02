@@ -5,9 +5,6 @@ import '../models/metadata.dart';
 
 /// Widget for displaying a channel in a card format
 class ChannelCard extends StatelessWidget {
-  final Channel channel;
-  final Metadata? metadata;
-  final VoidCallback onTap;
 
   const ChannelCard({
     super.key,
@@ -15,6 +12,9 @@ class ChannelCard extends StatelessWidget {
     this.metadata,
     required this.onTap,
   });
+  final Channel channel;
+  final Metadata? metadata;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

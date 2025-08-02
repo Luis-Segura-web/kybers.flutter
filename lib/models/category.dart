@@ -1,8 +1,5 @@
 /// Category model for organizing channels
 class Category {
-  final String id;
-  final String name;
-  final String? parentId;
 
   const Category({
     required this.id,
@@ -17,6 +14,9 @@ class Category {
       parentId: json['parent_id']?.toString(),
     );
   }
+  final String id;
+  final String name;
+  final String? parentId;
 
   Map<String, dynamic> toJson() {
     return {

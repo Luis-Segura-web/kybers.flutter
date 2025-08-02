@@ -16,7 +16,7 @@ void main() {
 
       // Build the widget
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: PlayerScreen(
             channel: testChannel,
           ),
@@ -45,7 +45,7 @@ void main() {
 
       // Build the widget
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: PlayerScreen(
             channel: testChannel,
           ),
@@ -73,7 +73,7 @@ void main() {
 
       // Build the widget
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: PlayerScreen(
             channel: testChannel,
           ),
@@ -82,7 +82,7 @@ void main() {
 
       // Allow time for video initialization to fail
       await tester.pump();
-      await tester.pump(Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 1));
 
       // The error handling will depend on video_player behavior
       // We can at least verify the structure is correct
@@ -108,11 +108,11 @@ void main() {
                   Navigator.push(
                     tester.element(find.byType(ElevatedButton)).findAncestorWidgetOfExactType<MaterialApp>()!.navigatorKey!.currentContext!,
                     MaterialPageRoute(
-                      builder: (context) => PlayerScreen(channel: testChannel),
+                      builder: (context) => const PlayerScreen(channel: testChannel),
                     ),
                   );
                 },
-                child: Text('Open Player'),
+                child: const Text('Open Player'),
               ),
             ),
           ),
@@ -145,7 +145,7 @@ void main() {
 
       // Build the widget without metadata
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: PlayerScreen(
             channel: testChannel,
             metadata: null,

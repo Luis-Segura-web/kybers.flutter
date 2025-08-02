@@ -1,12 +1,5 @@
 /// Metadata model for TMDB information
 class Metadata {
-  final String? title;
-  final String? overview;
-  final String? posterPath;
-  final String? backdropPath;
-  final double? voteAverage;
-  final String? releaseDate;
-  final List<String>? genres;
 
   const Metadata({
     this.title,
@@ -31,6 +24,13 @@ class Metadata {
           : null,
     );
   }
+  final String? title;
+  final String? overview;
+  final String? posterPath;
+  final String? backdropPath;
+  final double? voteAverage;
+  final String? releaseDate;
+  final List<String>? genres;
 
   String? get fullPosterUrl => posterPath != null
       ? 'https://image.tmdb.org/t/p/w500$posterPath'

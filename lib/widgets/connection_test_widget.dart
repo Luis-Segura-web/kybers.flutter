@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../services/xtream_service.dart';
 import '../services/tmdb_service.dart';
 import '../utils/network_helper.dart';
-import '../utils/helpers.dart';
 
 /// Helper widget to test API connections
 class ConnectionTestWidget extends StatefulWidget {

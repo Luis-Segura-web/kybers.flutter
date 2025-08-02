@@ -17,7 +17,7 @@ class CacheService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final cacheKey = _getChannelsCacheKey(profileId, categoryId);
-      final timestampKey = '${_cacheTimestampPrefix}${cacheKey}';
+      final timestampKey = '$_cacheTimestampPrefix$cacheKey';
       
       // Check if cache exists and is not expired
       final timestamp = prefs.getInt(timestampKey);
@@ -40,7 +40,7 @@ class CacheService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final cacheKey = _getChannelsCacheKey(profileId, categoryId);
-      final timestampKey = '${_cacheTimestampPrefix}${cacheKey}';
+      final timestampKey = '$_cacheTimestampPrefix$cacheKey';
       
       final channelsJson = channels.map((channel) => channel.toJson()).toList();
       await prefs.setString(cacheKey, jsonEncode(channelsJson));
@@ -54,8 +54,8 @@ class CacheService {
   static Future<List<Category>?> getCachedCategories(String profileId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final cacheKey = '${_categoriesCachePrefix}${profileId}';
-      final timestampKey = '${_cacheTimestampPrefix}${cacheKey}';
+      final cacheKey = '$_categoriesCachePrefix$profileId';
+      final timestampKey = '$_cacheTimestampPrefix$cacheKey';
       
       // Check if cache exists and is not expired
       final timestamp = prefs.getInt(timestampKey);
@@ -77,8 +77,8 @@ class CacheService {
   static Future<void> cacheCategories(String profileId, List<Category> categories) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final cacheKey = '${_categoriesCachePrefix}${profileId}';
-      final timestampKey = '${_cacheTimestampPrefix}${cacheKey}';
+      final cacheKey = '$_categoriesCachePrefix$profileId';
+      final timestampKey = '$_cacheTimestampPrefix$cacheKey';
       
       final categoriesJson = categories.map((category) => category.toJson()).toList();
       await prefs.setString(cacheKey, jsonEncode(categoriesJson));
@@ -132,16 +132,16 @@ class CacheService {
   /// Check if cache is expired
   static bool _isCacheExpired(int timestamp) {
     final cacheTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    final expirationTime = cacheTime.add(Duration(hours: cacheExpirationHours));
+    final expirationTime = cacheTime.add(const Duration(hours: cacheExpirationHours));
     return DateTime.now().isAfter(expirationTime);
   }
 
   /// Generate cache key for channels
   static String _getChannelsCacheKey(String profileId, String? categoryId) {
     if (categoryId != null) {
-      return '${_channelsCachePrefix}${profileId}_category_${categoryId}';
+      return '$_channelsCachePrefix${profileId}_category_$categoryId';
     }
-    return '${_channelsCachePrefix}${profileId}_all';
+    return '$_channelsCachePrefix${profileId}_all';
   }
 
   /// Get cache info for debugging

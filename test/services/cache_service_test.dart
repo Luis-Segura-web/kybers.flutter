@@ -15,13 +15,13 @@ void main() {
       // Arrange
       const profileId = 'test-profile-id';
       final channels = [
-        Channel(
+        const Channel(
           id: '1',
           name: 'Test Channel 1',
           streamUrl: 'http://test.com/stream1.m3u8',
           categoryId: 'cat1',
         ),
-        Channel(
+        const Channel(
           id: '2',
           name: 'Test Channel 2',
           streamUrl: 'http://test.com/stream2.m3u8',
@@ -46,8 +46,8 @@ void main() {
       // Arrange
       const profileId = 'test-profile-id';
       final categories = [
-        Category(id: '1', name: 'Sports'),
-        Category(id: '2', name: 'Movies'),
+        const Category(id: '1', name: 'Sports'),
+        const Category(id: '2', name: 'Movies'),
       ];
 
       // Act
@@ -68,7 +68,7 @@ void main() {
       const profileId = 'test-profile-id';
       const categoryId = 'sports';
       final channels = [
-        Channel(
+        const Channel(
           id: '1',
           name: 'Sports Channel',
           streamUrl: 'http://test.com/sports.m3u8',
@@ -100,7 +100,7 @@ void main() {
       // Arrange
       const profileId = 'test-profile-id';
       final channels = [
-        Channel(
+        const Channel(
           id: '1',
           name: 'Test Channel',
           streamUrl: 'http://test.com/test.m3u8',
@@ -108,7 +108,7 @@ void main() {
         ),
       ];
       final categories = [
-        Category(id: '1', name: 'Test Category'),
+        const Category(id: '1', name: 'Test Category'),
       ];
 
       // Act
@@ -129,7 +129,7 @@ void main() {
       const profileId1 = 'profile-1';
       const profileId2 = 'profile-2';
       final channels = [
-        Channel(
+        const Channel(
           id: '1',
           name: 'Test Channel',
           streamUrl: 'http://test.com/test.m3u8',

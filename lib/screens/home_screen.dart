@@ -25,7 +25,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Channel> _channels = [];
   List<Category> _categories = [];
-  Map<String, Metadata> _metadataCache = {};
+  final Map<String, Metadata> _metadataCache = {};
   String? _selectedCategoryId;
   bool _isLoading = false;
   String _searchQuery = '';
@@ -269,11 +269,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
               PopupMenuItem(
+                onTap: _logout,
                 child: const ListTile(
                   leading: Icon(Icons.logout),
                   title: Text('Cerrar sesión'),
                 ),
-                onTap: _logout,
               ),
             ],
           ),

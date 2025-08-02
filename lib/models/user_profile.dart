@@ -1,13 +1,5 @@
 /// User profile model for storing IPTV credentials
 class UserProfile {
-  final String id;
-  final String name;
-  final String host;
-  final String username;
-  final String password;
-  final bool isActive;
-  final DateTime createdAt;
-  final DateTime? lastUsed;
 
   const UserProfile({
     required this.id,
@@ -34,6 +26,14 @@ class UserProfile {
           : null,
     );
   }
+  final String id;
+  final String name;
+  final String host;
+  final String username;
+  final String password;
+  final bool isActive;
+  final DateTime createdAt;
+  final DateTime? lastUsed;
 
   Map<String, dynamic> toJson() {
     return {

@@ -1,11 +1,5 @@
 /// Channel model for IPTV streams
 class Channel {
-  final String id;
-  final String name;
-  final String streamUrl;
-  final String? logo;
-  final String categoryId;
-  final String? epgChannelId;
 
   const Channel({
     required this.id,
@@ -26,6 +20,12 @@ class Channel {
       epgChannelId: json['epg_channel_id'],
     );
   }
+  final String id;
+  final String name;
+  final String streamUrl;
+  final String? logo;
+  final String categoryId;
+  final String? epgChannelId;
 
   Map<String, dynamic> toJson() {
     return {

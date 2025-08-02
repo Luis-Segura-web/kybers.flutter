@@ -11,7 +11,7 @@ void main() async {
   
   // Load environment variables
   try {
-    await dotenv.load(fileName: ".env");
+    await dotenv.load(fileName: '.env');
   } catch (e) {
     print('Warning: Could not load .env file: $e');
   }
@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
         ),
         
         // Card theme
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           elevation: 4,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),

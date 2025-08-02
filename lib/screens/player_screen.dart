@@ -4,19 +4,18 @@ import 'package:video_player/video_player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/channel.dart';
 import '../models/metadata.dart';
-import '../utils/helpers.dart';
 import '../utils/constants.dart';
 
 /// Screen for playing IPTV streams
 class PlayerScreen extends StatefulWidget {
-  final Channel channel;
-  final Metadata? metadata;
 
   const PlayerScreen({
     super.key,
     required this.channel,
     this.metadata,
   });
+  final Channel channel;
+  final Metadata? metadata;
 
   @override
   State<PlayerScreen> createState() => _PlayerScreenState();
